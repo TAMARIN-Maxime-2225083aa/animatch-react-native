@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Animatch</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <h1>💕💕💕 Animatch 💕💕💕</h1>
+    <div class="hero">
+      <div class="selector">
+        <div class="card">
+          <div id="placeholder1">
+            <img class="placeholderImg" src="assets/img/placeholder.png" alt="" />
+          </div>
+          <input
+            type="text"
+            name="anime1"
+            id="anime1"
+            placeholder="donnez un nom d'anime "
+          />
+          <div id="list1"></div>
+        </div>
+        <div class="objet">
+          <h1 style="color: white; font-size: 150px">+</h1>
+          <button id="check" class="check">Animatch</button>
+        </div>
+        <div class="card">
+          <div id="placeholder2">
+            <img class="placeholderImg" src="assets/img/placeholder.png" alt="" />
+          </div>
+          <input
+            type="text"
+            name="anime2"
+            id="anime2"
+            placeholder="donnez un nom d'anime"
+          />
+          <div id="list2"></div>
+        </div>
+      </div>
+    </div>
+    <div id="match" class="match"></div>
+    <script src="assets/js/fetchApi.js"></script>
+  </body>
+</html>

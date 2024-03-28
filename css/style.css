@@ -1,0 +1,91 @@
+body {
+    display: flex;
+    flex-direction: column;
+    background: #2f3030;
+    margin: 0;
+  }
+  
+  .hero {
+    display: flex;
+    padding: 40px;
+    background-image: url("../img/heart.svg");
+    background-position: center;
+    height: 550px;
+    background-repeat: no-repeat;
+    background-size: 35%;
+  }
+  
+  .selector {
+    margin: auto;
+    display: flex;
+    gap: 90px;
+    justify-content: space-between;
+  }
+  
+  .card input {
+    display: block;
+    width: 100%;
+  }
+  
+  h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-family: fantasy;
+    font-size: 50px;
+    background-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 70%,
+      var(--primary) 70%,
+      var(--primary) 90%,
+      transparent 90%
+    );
+    text-shadow: var(--shadow);
+    padding: 0 20px;
+  }
+  
+  .suggestion {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    background-color: lightgrey;
+  }
+  
+  .title {
+    margin: 5px;
+  }
+  
+  .img {
+    height: 100px;
+    object-fit: cover;
+  }
+  
+  .objet {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-flow: column;
+  }
+  
+  .placeholderImg {
+    width: 220px;
+    height: 440px;
+    object-fit: cover;
+  }
+  
+  .match {
+      display: flex;
+      width: 100%;
+      flex-flow: wrap;
+      justify-content: center;
+      color: white;
+  }
+  
+  .common {
+      display: flex;
+      flex-flow: column;
+      width: 20%;
+      margin: 5px;
+  }
