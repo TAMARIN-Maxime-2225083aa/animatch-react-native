@@ -147,22 +147,28 @@ const AnimeSelector = () => {
   };
 
   const handleMatch = async () => {
+    // Réinitialisation des champs de saisie et des suggestions
+    setAnime1('');
+    setAnime2('');
+    setSuggestions1([]);
+    setSuggestions2([]);
+  
     if (genres1.length === 0 || genres2.length === 0) {
       alert("Merci de sélectionner deux animés");
       return;
     }
-
+  
     const commonGenres = genres1.filter((genre) => genres2.includes(genre));
     if (commonGenres.length === 0) {
       alert("Aucun genre commun");
       return;
     }
-
+  
     try {
       const res = await fetchAnimesByGenre(commonGenres);
       const suggestions = res.data.Page.media;
       suggestions.sort((a, b) => b.seasonYear - a.seasonYear);
-
+  
       if (suggestions.length > 0) {
         setMatchedAnime(suggestions[0]);
       } else {
