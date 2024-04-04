@@ -82,7 +82,6 @@ const AnimeSelector = () => {
   const [placeholder1, setPlaceholder1] = useState('https://via.placeholder.com/150');
   const [placeholder2, setPlaceholder2] = useState('https://via.placeholder.com/150');
   const [matchedAnime, setMatchedAnime] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
 
   const fetchAnimesByName = async (input, setSuggestions) => {
     if (input.length < 1) {
@@ -109,7 +108,6 @@ const AnimeSelector = () => {
       if (res.status === 200) {
         const data = await res.json();
         setSuggestions(data.data.Page.media);
-        updateSearchHistory(input); // Mettre à jour l'historique de recherche
       } else {
         setSuggestions([]);
       }
@@ -149,117 +147,81 @@ const AnimeSelector = () => {
   };
 
   const handleMatch = async () => {
-  // Réinitialisation des champs de saisie et des suggestions
-  setAnime1('');
-  setAnime2('');
-  setSuggestions1([]);
-  setSuggestions2([]);
-
-  if (genres1.length === 0 || genres2.length === 0) {
-    alert("Merci de sélectionner deux animés");
-    return;
-  }
-
-  const commonGenres = [];
-
-  // Trouver les genres communs entre les deux listes de genres
-  genres1.forEach(genre => {
-    if (genres2.includes(genre)) {
-      commonGenres.push(genre);
-    }
-  });
-
-  if (commonGenres.length === 0) {
-    alert("Aucun genre commun");
-    return;
-  }
-
-  try {
-    const res = await fetchAnimesByGenre(commonGenres);
-    const suggestions = res.data.Page.media;
-
-    if (suggestions.length === 0) {
-      alert("Aucun anime trouvé pour les genres communs sélectionnés");
+    if (genres1.length === 0 || genres2.length === 0) {
+      alert("Merci de sélectionner deux animés");
       return;
     }
 
-    suggestions.sort((a, b) => b.seasonYear - a.seasonYear);
-    setMatchedAnime(suggestions[0]);
-    setCurrentIndex(0);
-  } catch (error) {
-    console.error("Error fetching matched anime:", error);
-    alert("Une erreur s'est produite lors de la recherche de l'anime correspondant");
-  }
-};
+    const commonGenres = genres1.filter((genre) => genres2.includes(genre));
+    if (commonGenres.length === 0) {
+      alert("Aucun genre commun");
+      return;
+    }
 
-const handleNextAnime = () => {
-  if (currentIndex < suggestions.length - 1) {
-    setCurrentIndex(currentIndex + 1);
-  } else {
-    alert("Aucun autre anime suivant dans la liste des suggestions");
-  }
-};
+    try {
+      const res = await fetchAnimesByGenre(commonGenres);
+      const suggestions = res.data.Page.media;
+      suggestions.sort((a, b) => b.seasonYear - a.seasonYear);
 
-const renderSearchHistory = () => {
-  return searchHistory.map((anime, index) => (
-    <TouchableOpacity
-      key={index}
-      onPress={() => handleInputChange(anime, setAnime1, setSuggestions1)}
-    >
-      <Text>{anime}</Text>
-    </TouchableOpacity>
-  ));
-};
+      if (suggestions.length > 0) {
+        setMatchedAnime(suggestions[0]);
 
-return (
-  <View style={{ padding: 40 }}>
-    {/* Champ de saisie 1 et suggestions */}
-    <TextInput
-      style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
-      onChangeText={(text) => handleInputChange(text, setAnime1, setSuggestions1)}
-      value={anime1}
-      placeholder="Donnez un nom d'anime"
-    />
-    <View>
-      {renderSuggestions(suggestions1, setGenres1, setAnime1, setPlaceholder1, setSuggestions1)}
-    </View>
+        // Enregistrer les données dans le localStorage
+        const matchData = {
+          choixAnime1: anime1,
+          choixAnime2: anime2,
+          Suggestion: suggestions[0].title.romaji
+        };
+        // Convertir les données en JSON et les enregistrer dans le localStorage
+        localStorage.setItem('matchData', JSON.stringify(matchData));
+      } else {
+        alert("Aucun anime trouvé pour les genres communs sélectionnés");
+      }
+    } catch (error) {
+      console.error("Error fetching matched anime:", error);
+      alert("Une erreur s'est produite lors de la recherche de l'anime correspondant");
+    }
+  };
 
-    {/* Champ de saisie 2 et suggestions */}
-    <TextInput
-      style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, marginTop: 20 }}
-      onChangeText={(text) => handleInputChange(text, setAnime2, setSuggestions2)}
-      value={anime2}
-      placeholder="Donnez un nom d'anime"
-    />
-    <View>
-      {renderSuggestions(suggestions2, setGenres2, setAnime2, setPlaceholder2, setSuggestions2)}
-    </View>
-
-    {/* Placeholders des animes sélectionnés */}
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-      <Image source={{ uri: placeholder1 }} style={{ width: 150, height: 150 }} />
-      <Image source={{ uri: placeholder2 }} style={{ width: 150, height: 150 }} />
-    </View>
-
-    {/* Bouton de correspondance */}
-    <Button title="Match" onPress={handleMatch} />
-
-    {/* Historique de recherche */}
-    <View style={{ marginTop: 20 }}>
-      <Text style={{ fontWeight: 'bold' }}>Historique de recherche</Text>
-      {renderSearchHistory()}
-    </View>
-
-    {/* Affichage de l'anime correspondant */}
-    {matchedAnime && (
-      <View style={{ marginTop: 20 }}>
-        <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Anime correspondant :</Text>
-        <Image source={{ uri: suggestions[currentIndex].coverImage.large }} style={{ width: 150, height: 150 }} />
-        <Text>{suggestions[currentIndex].title.romaji}</Text>
-        <Button title="Suivant" onPress={handleNextAnime} />
+  return (
+    <View style={{ padding: 40 }}>
+      <TextInput
+        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
+        onChangeText={(text) => handleInputChange(text, setAnime1, setSuggestions1)}
+        value={anime1}
+        placeholder="Donnez un nom d'anime"
+      />
+      <View>
+        {renderSuggestions(suggestions1, setGenres1, setAnime1, setPlaceholder1, setSuggestions1)}
       </View>
-    )}
+      {/* Placeholder de l'anime sélectionné */}
+      <Image source={{ uri: placeholder1 }} style={{ width: 150, height: 150 }} />
+
+      {/* Deuxième champ de saisie */}
+      <TextInput
+        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, marginTop: 20 }}
+        onChangeText={(text) => handleInputChange(text, setAnime2, setSuggestions2)}
+        value={anime2}
+        placeholder="Donnez un nom d'anime"
+      />
+      <View>
+        {renderSuggestions(suggestions2, setGenres2, setAnime2, setPlaceholder2, setSuggestions2)}
+      </View>
+      {/* Placeholder de l'anime sélectionné */}
+      <Image source={{ uri: placeholder2 }} style={{ width: 150, height: 150 }} />
+
+      {/* Bouton de correspondance */}
+      <Button title="Match" onPress={handleMatch} />
+
+{/* Affichage de l'anime correspondant */}
+{matchedAnime && (
+  <View style={{ marginTop: 20 }}>
+    <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Anime correspondant :</Text>
+    <Image source={{ uri: matchedAnime.coverImage.large }} style={{ width: 150, height: 150 }} />
+    <Text>{matchedAnime.title.romaji}</Text>
   </View>
+)}
+</View>
 );
 };
 
