@@ -166,16 +166,6 @@ const AnimeSelector = () => {
       if (suggestions.length > 0) {
         setMatchedAnime(suggestions[0]);
 
-        // Enregistrer les données dans le localStorage
-        const matchData = {
-          choixAnime1: anime1,
-          choixAnime2: anime2,
-          Suggestion: suggestions[0].title.romaji
-        };
-        // Convertir les données en JSON et les enregistrer dans le localStorage
-        localStorage.setItem('matchData', JSON.stringify(matchData));
-      } else {
-        alert("Aucun anime trouvé pour les genres communs sélectionnés");
       }
     } catch (error) {
       console.error("Error fetching matched anime:", error);
