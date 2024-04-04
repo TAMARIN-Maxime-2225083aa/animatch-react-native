@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, TouchableOpacity } from 'react-native';
+import styles from '../css/AnimeSelectorStyles.js';
 
 const query = `
 query ($id: Int, $page: Int, $perPage: Int, $search: String) {
@@ -174,41 +175,47 @@ const AnimeSelector = () => {
   };
 
   return (
-    <View style={{ padding: 40 }}>
+    <View style={styles.container}>
       <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
+        style={styles.input}
         onChangeText={(text) => handleInputChange(text, setAnime1, setSuggestions1)}
         value={anime1}
         placeholder="Donnez un nom d'anime"
       />
-      <View>
+      <View style={styles.suggestion}>
         {renderSuggestions(suggestions1, setGenres1, setAnime1, setPlaceholder1, setSuggestions1)}
       </View>
-      {/* Placeholder de l'anime sélectionné */}
-      <Image source={{ uri: placeholder1 }} style={{ width: 150, height: 150 }} />
 
       {/* Deuxième champ de saisie */}
       <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, marginTop: 20 }}
-        onChangeText={(text) => handleInputChange(text, setAnime2, setSuggestions2)}
-        value={anime2}
-        placeholder="Donnez un nom d'anime"
+          style={styles.input}
+          onChangeText={(text) => handleInputChange(text, setAnime2, setSuggestions2)}
+          value={anime2}
+          placeholder="Donnez un nom d'anime"
       />
-      <View>
+      <View style={styles.suggestion}>
         {renderSuggestions(suggestions2, setGenres2, setAnime2, setPlaceholder2, setSuggestions2)}
       </View>
-      {/* Placeholder de l'anime sélectionné */}
-      <Image source={{ uri: placeholder2 }} style={{ width: 150, height: 150 }} />
+
+      <View style={{display: "flex", flexDirection: "row"}}>
+        {/* Placeholder de l'anime sélectionné */}
+        <Image source={{ uri: placeholder1 }} style={styles.image} />
+
+        {/* Placeholder de l'anime sélectionné */}
+        <Image source={{ uri: placeholder2 }} style={styles.image} />
+      </View>
 
       {/* Bouton de correspondance */}
-      <Button title="Match" onPress={handleMatch} />
+      <TouchableOpacity onPress={handleMatch} style={styles.matchButton}>
+        <Text style={styles.buttonText}>Match</Text>
+        </TouchableOpacity>
 
 {/* Affichage de l'anime correspondant */}
 {matchedAnime && (
-  <View style={{ marginTop: 20 }}>
-    <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Anime correspondant :</Text>
-    <Image source={{ uri: matchedAnime.coverImage.large }} style={{ width: 150, height: 150 }} />
-    <Text>{matchedAnime.title.romaji}</Text>
+  <View style={{display: 'flex', alignItems: "center"}}>
+    <Text style={styles.matchedAnimeTitle}>Anime correspondant :</Text>
+    <Image style={styles.image} source={{ uri: matchedAnime.coverImage.large }}  />
+    <Text style={styles.matchedAnimeTitle}>{matchedAnime.title.romaji}</Text>
   </View>
 )}
 </View>
