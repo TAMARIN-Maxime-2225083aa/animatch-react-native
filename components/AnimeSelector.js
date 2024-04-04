@@ -32,7 +32,7 @@ const fetchAnimesByGenre = async (genres) => {
     perPage: 50,
     genre_in: genres,
   };
-
+  
   const query2 = `
   query ($id: Int, $page: Int, $perPage: Int, $genre_in: [String]) {
     Page (page: $page, perPage: $perPage) {
@@ -50,7 +50,7 @@ const fetchAnimesByGenre = async (genres) => {
     }
   }
   `;
-
+  
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -60,7 +60,7 @@ const fetchAnimesByGenre = async (genres) => {
         variables: variables,
       }),
     });
-
+    
     if (res.status === 200) {
       const data = await res.json();
       return data;
@@ -83,19 +83,20 @@ const AnimeSelector = () => {
   const [placeholder1, setPlaceholder1] = useState('https://via.placeholder.com/150');
   const [placeholder2, setPlaceholder2] = useState('https://via.placeholder.com/150');
   const [matchedAnime, setMatchedAnime] = useState(null);
-
+  const [history, setHistory] = useState([]);
+  
   const fetchAnimesByName = async (input, setSuggestions) => {
     if (input.length < 1) {
       setSuggestions([]);
       return;
     }
-
+    
     const variables = {
       search: input,
       page: 1,
       perPage: 5,
     };
-
+    
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -105,7 +106,7 @@ const AnimeSelector = () => {
           variables: variables,
         }),
       });
-
+      
       if (res.status === 200) {
         const data = await res.json();
         setSuggestions(data.data.Page.media);
@@ -117,109 +118,120 @@ const AnimeSelector = () => {
       setSuggestions([]);
     }
   };
-
+  
   const handleInputChange = async (input, setAnime, setSuggestions) => {
     setAnime(input);
     await fetchAnimesByName(input, setSuggestions);
   };
-
+  
   const handleSuggestionClick = (suggestion, setGenres, setAnime, setPlaceholder, setSuggestions) => {
     setGenres(suggestion.genres);
     setAnime(suggestion.title.romaji);
     setPlaceholder(suggestion.coverImage.large);
     setSuggestions([]); // Fermer la liste des suggestions en la vidant
   };
-
+  
   const renderSuggestions = (suggestions, setGenres, setAnime, setPlaceholder, setSuggestions) => {
     return suggestions.map((suggestion, index) => (
       <TouchableOpacity
-        key={index}
-        onPress={() => handleSuggestionClick(suggestion, setGenres, setAnime, setPlaceholder, setSuggestions)}
+      key={index}
+      onPress={() => handleSuggestionClick(suggestion, setGenres, setAnime, setPlaceholder, setSuggestions)}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image
-            source={{ uri: suggestion.coverImage.medium }}
-            style={{ width: 50, height: 50, marginRight: 10 }}
-          />
-          <Text>{suggestion.title.romaji}</Text>
-        </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Image
+      source={{ uri: suggestion.coverImage.medium }}
+      style={{ width: 50, height: 50, marginRight: 10 }}
+      />
+      <Text>{suggestion.title.romaji}</Text>
+      </View>
       </TouchableOpacity>
-    ));
-  };
-
-  const handleMatch = async () => {
-    if (genres1.length === 0 || genres2.length === 0) {
-      alert("Merci de sélectionner deux animés");
-      return;
-    }
-
-    const commonGenres = genres1.filter((genre) => genres2.includes(genre));
-    if (commonGenres.length === 0) {
-      alert("Aucun genre commun");
-      return;
-    }
-
-    try {
-      const res = await fetchAnimesByGenre(commonGenres);
-      const suggestions = res.data.Page.media;
-      suggestions.sort((a, b) => b.seasonYear - a.seasonYear);
-
-      if (suggestions.length > 0) {
-        setMatchedAnime(suggestions[0]);
-
+      ));
+    };
+    
+    const handleMatch = async () => {
+      if (genres1.length === 0 || genres2.length === 0) {
+        alert("Merci de sélectionner deux animés");
+        return;
       }
-    } catch (error) {
-      console.error("Error fetching matched anime:", error);
-      alert("Une erreur s'est produite lors de la recherche de l'anime correspondant");
-    }
-  };
-
-  return (
-    <View style={styles.container}>
+      
+      const commonGenres = genres1.filter((genre) => genres2.includes(genre));
+      if (commonGenres.length === 0) {
+        alert("Aucun genre commun");
+        return;
+      }
+      
+      try {
+        const res = await fetchAnimesByGenre(commonGenres);
+        const suggestions = res.data.Page.media;
+        suggestions.sort((a, b) => b.seasonYear - a.seasonYear);
+        
+        if (suggestions.length > 0) {
+          setMatchedAnime(suggestions[0]);
+          // Ajouter la suggestion à l'historique
+          const newHistoryItem = `${anime1} + ${anime2} = ${suggestions[0].title.romaji}`;
+          setHistory([...history, newHistoryItem]);
+          
+        }
+      } catch (error) {
+        console.error("Error fetching matched anime:", error);
+        alert("Une erreur s'est produite lors de la recherche de l'anime correspondant");
+      }
+    };
+    
+    return (
+      <View style={styles.container}>
       <TextInput
-        style={styles.input}
-        onChangeText={(text) => handleInputChange(text, setAnime1, setSuggestions1)}
-        value={anime1}
-        placeholder="Donnez un nom d'anime"
+      style={styles.input}
+      onChangeText={(text) => handleInputChange(text, setAnime1, setSuggestions1)}
+      value={anime1}
+      placeholder="Donnez un nom d'anime"
       />
       <View style={styles.suggestion}>
-        {renderSuggestions(suggestions1, setGenres1, setAnime1, setPlaceholder1, setSuggestions1)}
+      {renderSuggestions(suggestions1, setGenres1, setAnime1, setPlaceholder1, setSuggestions1)}
       </View>
-
+      
       {/* Deuxième champ de saisie */}
       <TextInput
-          style={styles.input}
-          onChangeText={(text) => handleInputChange(text, setAnime2, setSuggestions2)}
-          value={anime2}
-          placeholder="Donnez un nom d'anime"
+      style={styles.input}
+      onChangeText={(text) => handleInputChange(text, setAnime2, setSuggestions2)}
+      value={anime2}
+      placeholder="Donnez un nom d'anime"
       />
       <View style={styles.suggestion}>
-        {renderSuggestions(suggestions2, setGenres2, setAnime2, setPlaceholder2, setSuggestions2)}
+      {renderSuggestions(suggestions2, setGenres2, setAnime2, setPlaceholder2, setSuggestions2)}
       </View>
-
+      
       <View style={{display: "flex", flexDirection: "row"}}>
-        {/* Placeholder de l'anime sélectionné */}
-        <Image source={{ uri: placeholder1 }} style={styles.image} />
-
-        {/* Placeholder de l'anime sélectionné */}
-        <Image source={{ uri: placeholder2 }} style={styles.image} />
+      {/* Placeholder de l'anime sélectionné */}
+      <Image source={{ uri: placeholder1 }} style={styles.image} />
+      
+      {/* Placeholder de l'anime sélectionné */}
+      <Image source={{ uri: placeholder2 }} style={styles.image} />
       </View>
-
+      
       {/* Bouton de correspondance */}
       <TouchableOpacity onPress={handleMatch} style={styles.matchButton}>
-        <Text style={styles.buttonText}>Match</Text>
-        </TouchableOpacity>
+      <Text style={styles.buttonText}>Match</Text>
+      </TouchableOpacity>
+      
+      {/* Affichage de l'anime correspondant */}
+      {matchedAnime && (
+        <View style={{ marginTop: 20 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Anime suggéré :</Text>
+          <Image source={{ uri: matchedAnime.coverImage.large }} style={{ width: 150, height: 150 }} />
+          <Text>{matchedAnime.title.romaji}</Text>
+        </View>
+      )}
 
-{/* Affichage de l'anime correspondant */}
-{matchedAnime && (
-  <View style={{display: 'flex', alignItems: "center"}}>
-    <Text style={styles.matchedAnimeTitle}>Anime correspondant :</Text>
-    <Image style={styles.image} source={{ uri: matchedAnime.coverImage.large }}  />
-    <Text style={styles.matchedAnimeTitle}>{matchedAnime.title.romaji}</Text>
-  </View>
-)}
-</View>
-);
+      {/* Affichage de l'historique */}
+      <View style={{ marginTop: 20 }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Historique :</Text>
+        {history.map((item, index) => (
+          <Text key={index}>{item}</Text>
+        ))}
+      </View>
+    </View>
+  );
 };
-
-export default AnimeSelector;
+        
+        export default AnimeSelector;
